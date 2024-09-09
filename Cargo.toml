@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.86"
 thiserror = "1.0.61"
+sysinfo = "0.31.4"

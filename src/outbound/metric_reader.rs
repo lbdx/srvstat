@@ -2,6 +2,8 @@ use crate::domain::{
     metric::{Category, Metric, Percentage},
     ports::MetricReader,
 };
+use sysinfo::{Disks, System};
+
 pub struct DummyMetricReader;
 impl MetricReader for DummyMetricReader {
     fn get_percent(&self, category: &Category) -> Metric {
@@ -10,4 +12,55 @@ impl MetricReader for DummyMetricReader {
     fn get_used(&self, category: &Category) -> Metric {
         Metric::Used(category.clone(), 25, 100)
     }
+}
+
+pub struct SystemMetricReader;
+
+impl MetricReader for SystemMetricReader {
+    fn get_percent(&self, category: &Category) -> Metric {
+        match category {
+            Category::Disk => {
+                let used = self.get_used(category);
+                match used {
+                    Metric::Used(_, used_space, total_space) => {
+                        // Calculate the disk usage percentage
+                        let disk_usage_percent = used_space as f64 / total_space as f64 * 100.0;
+                        // Cast the percentage to u8 (after rounding)
+                        let disk_usage_percent_u8 = disk_usage_percent.round() as u8;
+                        Metric::Percent(category.clone(), Percentage::new(disk_usage_percent_u8).unwrap())
+                    }
+                    _ => unreachable!(),
+                }
+                
+            }
+            Category::Memory => todo!(),
+            Category::Cpu => todo!(),
+        }
+    }
+
+    fn get_used(&self, category: &Category) -> Metric {
+        match category {
+            Category::Disk => {
+                // Initialize the system info struct
+                let mut sys = System::new_all();
+                
+                // Refresh system data to ensure we get the latest info
+                sys.refresh_all();
+
+                // Get the first disk
+                let disks = Disks::new_with_refreshed_list();
+                let disk = disks.first();
+                let total_space = disk.unwrap().total_space();
+                let available_space = disk.unwrap().available_space();
+
+                // Calculate used space
+                let used_space = total_space - available_space;
+
+                Metric::Used(category.clone(), used_space, total_space)
+            }
+            Category::Memory => todo!(),
+            Category::Cpu => todo!(),
+        }
+    }
+
 }

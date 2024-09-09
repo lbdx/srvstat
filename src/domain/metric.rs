@@ -8,7 +8,7 @@ pub enum Metric {
     /// A percentage-based metric (0-100) for a specific category.
     Percent(Category, Percentage),
     /// A used/total value pair for a specific category, such as memory usage.
-    Used(Category, u32, u32),
+    Used(Category, u64, u64),
 }
 
 /// Represents the different categories of resources that can be measured.
