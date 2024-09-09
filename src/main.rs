@@ -48,7 +48,7 @@ fn main() {
         let writer = DummyMetricWriter;
         let service = MetricService::new(reader, writer); // Create an instance of DummyMetricService
         service.process_metrics(Category::Disk);
+        service.process_metrics(Category::Memory);
         // service.process_metrics(Category::Cpu);
-        // service.process_metrics(Category::Memory);
     }
 }

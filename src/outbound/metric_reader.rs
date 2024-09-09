@@ -18,23 +18,16 @@ pub struct SystemMetricReader;
 
 impl MetricReader for SystemMetricReader {
     fn get_percent(&self, category: &Category) -> Metric {
-        match category {
-            Category::Disk => {
-                let used = self.get_used(category);
-                match used {
-                    Metric::Used(_, used_space, total_space) => {
-                        // Calculate the disk usage percentage
-                        let disk_usage_percent = used_space as f64 / total_space as f64 * 100.0;
-                        // Cast the percentage to u8 (after rounding)
-                        let disk_usage_percent_u8 = disk_usage_percent.round() as u8;
-                        Metric::Percent(category.clone(), Percentage::new(disk_usage_percent_u8).unwrap())
-                    }
-                    _ => unreachable!(),
-                }
-                
+        let used = self.get_used(category);
+        match used {
+            Metric::Used(_, used_metric, total_metric) => {
+                // Calculate the usage percentage
+                let usage_percent = used_metric as f64 / total_metric as f64 * 100.0;
+                // Cast the percentage to u8 (after rounding)
+                let usage_percent_u8 = usage_percent.round() as u8;
+                Metric::Percent(category.clone(), Percentage::new(usage_percent_u8).unwrap())
             }
-            Category::Memory => todo!(),
-            Category::Cpu => todo!(),
+            _ => unreachable!(),
         }
     }
 
@@ -58,7 +51,14 @@ impl MetricReader for SystemMetricReader {
 
                 Metric::Used(category.clone(), used_space, total_space)
             }
-            Category::Memory => todo!(),
+            Category::Memory => {
+                 // Initialize the system info struct
+                 let mut sys = System::new_all();
+
+                 // Refresh system data to ensure we get the latest info
+                 sys.refresh_memory();
+                 Metric::Used(category.clone(), sys.used_memory(), sys.available_memory())
+            },
             Category::Cpu => todo!(),
         }
     }
