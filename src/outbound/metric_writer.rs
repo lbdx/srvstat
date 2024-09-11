@@ -7,3 +7,11 @@ impl MetricWriter for DummyMetricWriter {
         println!("{:?}", metric);
     }
 }
+
+pub struct MqttMetricWriter;
+
+impl MetricWriter for MqttMetricWriter {
+    fn write(&self, metric: crate::domain::metric::Metric) {
+        todo!()
+    }
+}
