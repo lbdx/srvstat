@@ -18,17 +18,27 @@ pub struct SystemMetricReader;
 
 impl MetricReader for SystemMetricReader {
     fn get_percent(&self, category: &Category) -> Metric {
-        let used = self.get_used(category);
-        match used {
-            Metric::Used(_, used_metric, total_metric) => {
-                // Calculate the usage percentage
-                let usage_percent = 1f64 / total_metric as f64 * used_metric as f64 * 100f64;
-                // Cast the percentage to u8 (after rounding)
-                let usage_percent_u8 = usage_percent.round() as u8;
-                let result = Percentage::new(usage_percent_u8);
-                Metric::Percent(category.clone(), result.expect(&format!("Erreur poucentage non valide : {}", usage_percent_u8).to_string()))
+        match category {
+            Category::Cpu => {
+                let mut sys = System::new_all();
+                sys.refresh_cpu_usage();
+                let cpuUsage = sys.global_cpu_usage() as u8;
+                Metric::Percent(category.clone(), Percentage::new(cpuUsage).unwrap())
             }
-            _ => unreachable!(),
+            _ => {
+                let used = self.get_used(category);
+                match used {
+                    Metric::Used(_, used_metric, total_metric) => {
+                        // Calculate the usage percentage
+                        let usage_percent = 1f64 / total_metric as f64 * used_metric as f64 * 100f64;
+                        // Cast the percentage to u8 (after rounding)
+                        let usage_percent_u8 = usage_percent.round() as u8;
+                        let result = Percentage::new(usage_percent_u8);
+                        Metric::Percent(category.clone(), result.expect(&format!("Erreur poucentage non valide : {}", usage_percent_u8).to_string()))
+                    }
+                    _ => unreachable!(),
+                }
+            }
         }
     }
 
@@ -60,7 +70,9 @@ impl MetricReader for SystemMetricReader {
                  sys.refresh_memory();
                  Metric::Used(category.clone(), sys.used_memory(), sys.total_memory())
             },
-            Category::Cpu => todo!(),
+            Category::Cpu => {
+                todo!()
+            },
         }
     }
 
