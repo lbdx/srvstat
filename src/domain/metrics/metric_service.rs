@@ -1,5 +1,5 @@
-use super::metric::Category;
-use super::ports::{MetricProcessor, MetricReader, MetricWriter};
+use crate::domain::metrics::models::Category;
+use crate::domain::ports::{MetricProcessor, MetricReader, MetricWriter};
 
 // Generic service for reading and writing metrics
 #[derive(Debug, Clone)]

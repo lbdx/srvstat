@@ -32,8 +32,10 @@
 //!
 
 use config::Config;
-use domain::{metric::Category, metric_service::MetricService, ports::MetricProcessor};
 use outbound::{metric_reader::SystemMetricReader, metric_writer::DummyMetricWriter};
+use crate::domain::metrics::metric_service::MetricService;
+use crate::domain::metrics::models::Category;
+use crate::domain::ports::MetricProcessor;
 
 pub mod config;
 pub mod domain;

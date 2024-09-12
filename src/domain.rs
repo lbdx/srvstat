@@ -1,3 +1,2 @@
-pub mod metric;
+pub mod metrics;
 pub mod ports;
-pub mod metric_service;

@@ -1,4 +1,4 @@
-use super::metric::{Category, Metric};
+use crate::domain::metrics::models::{Category, Metric};
 
 pub trait MetricProcessor {
     fn process_metrics(&self, category: Category);
