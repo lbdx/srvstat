@@ -1,8 +1,8 @@
 use crate::domain::{
-    metric::{Category, Metric, Percentage},
     ports::MetricReader,
 };
 use sysinfo::{Disks, System};
+use crate::domain::metrics::models::{Category, Metric, Percentage};
 
 pub struct DummyMetricReader;
 impl MetricReader for DummyMetricReader {
@@ -22,10 +22,11 @@ impl MetricReader for SystemMetricReader {
         match used {
             Metric::Used(_, used_metric, total_metric) => {
                 // Calculate the usage percentage
-                let usage_percent = used_metric as f64 / total_metric as f64 * 100.0;
+                let usage_percent = 1f64 / total_metric as f64 * used_metric as f64 * 100f64;
                 // Cast the percentage to u8 (after rounding)
                 let usage_percent_u8 = usage_percent.round() as u8;
-                Metric::Percent(category.clone(), Percentage::new(usage_percent_u8).unwrap())
+                let result = Percentage::new(usage_percent_u8);
+                Metric::Percent(category.clone(), result.expect(&format!("Erreur poucentage non valide : {}", usage_percent_u8).to_string()))
             }
             _ => unreachable!(),
         }
@@ -57,7 +58,7 @@ impl MetricReader for SystemMetricReader {
 
                  // Refresh system data to ensure we get the latest info
                  sys.refresh_memory();
-                 Metric::Used(category.clone(), sys.used_memory(), sys.available_memory())
+                 Metric::Used(category.clone(), sys.used_memory(), sys.total_memory())
             },
             Category::Cpu => todo!(),
         }
