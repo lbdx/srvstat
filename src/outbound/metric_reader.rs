@@ -1,8 +1,6 @@
-use crate::domain::{
-    ports::MetricReader,
-};
-use sysinfo::{Disks, System};
 use crate::domain::metrics::models::{Category, Metric, Percentage};
+use crate::domain::ports::MetricReader;
+use sysinfo::{Disks, System};
 
 pub struct DummyMetricReader;
 impl MetricReader for DummyMetricReader {
@@ -22,19 +20,26 @@ impl MetricReader for SystemMetricReader {
             Category::Cpu => {
                 let mut sys = System::new_all();
                 sys.refresh_cpu_usage();
-                let cpuUsage = sys.global_cpu_usage() as u8;
-                Metric::Percent(category.clone(), Percentage::new(cpuUsage).unwrap())
+                let cpu_usage = sys.global_cpu_usage() as u8;
+                Metric::Percent(category.clone(), Percentage::new(cpu_usage).unwrap())
             }
             _ => {
                 let used = self.get_used(category);
                 match used {
                     Metric::Used(_, used_metric, total_metric) => {
                         // Calculate the usage percentage
-                        let usage_percent = 1f64 / total_metric as f64 * used_metric as f64 * 100f64;
+                        let usage_percent =
+                            1f64 / total_metric as f64 * used_metric as f64 * 100f64;
                         // Cast the percentage to u8 (after rounding)
                         let usage_percent_u8 = usage_percent.round() as u8;
                         let result = Percentage::new(usage_percent_u8);
-                        Metric::Percent(category.clone(), result.expect(&format!("Erreur poucentage non valide : {}", usage_percent_u8).to_string()))
+                        Metric::Percent(
+                            category.clone(),
+                            result.expect(
+                                &format!("Erreur poucentage non valide : {}", usage_percent_u8)
+                                    .to_string(),
+                            ),
+                        )
                     }
                     _ => unreachable!(),
                 }
@@ -47,7 +52,7 @@ impl MetricReader for SystemMetricReader {
             Category::Disk => {
                 // Initialize the system info struct
                 let mut sys = System::new_all();
-                
+
                 // Refresh system data to ensure we get the latest info
                 sys.refresh_all();
 
@@ -63,17 +68,16 @@ impl MetricReader for SystemMetricReader {
                 Metric::Used(category.clone(), used_space, total_space)
             }
             Category::Memory => {
-                 // Initialize the system info struct
-                 let mut sys = System::new_all();
+                // Initialize the system info struct
+                let mut sys = System::new_all();
 
-                 // Refresh system data to ensure we get the latest info
-                 sys.refresh_memory();
-                 Metric::Used(category.clone(), sys.used_memory(), sys.total_memory())
-            },
+                // Refresh system data to ensure we get the latest info
+                sys.refresh_memory();
+                Metric::Used(category.clone(), sys.used_memory(), sys.total_memory())
+            }
             Category::Cpu => {
                 todo!()
-            },
+            }
         }
     }
-
 }

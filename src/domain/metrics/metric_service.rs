@@ -31,7 +31,7 @@ where
     // read and write metric for a category (disk, cpu, ...)
     fn process_metrics(&self, category: Category) {
         self.writer.write(self.reader.get_percent(&category));
-        if (category != Category::Cpu) {
+        if category != Category::Cpu {
             self.writer.write(self.reader.get_used(&category));
         }
     }

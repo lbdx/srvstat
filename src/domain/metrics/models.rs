@@ -69,7 +69,10 @@ mod tests {
     fn test_invalid_percentage() {
         let invalid_percentage = Percentage::new(150);
         assert!(invalid_percentage.is_err());
-        assert_eq!(invalid_percentage.unwrap_err().to_string(), "Percent value must be between 0 and 100");
+        assert_eq!(
+            invalid_percentage.unwrap_err().to_string(),
+            "Percent value must be between 0 and 100"
+        );
     }
 
     #[test]

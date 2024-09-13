@@ -12,7 +12,7 @@ impl MetricWriter for DummyMetricWriter {
 pub struct MqttMetricWriter;
 
 impl MetricWriter for MqttMetricWriter {
-    fn write(&self, metric: Metric) {
+    fn write(&self, _metric: Metric) {
         todo!()
     }
 }
