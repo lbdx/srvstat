@@ -6,9 +6,9 @@ use thiserror::Error;
 #[derive(Debug, PartialEq)]
 pub enum Metric {
     /// A percentage-based metric (0-100) for a specific category.
-    Percent(Category, Percentage),
+    Percent(String, Category, Percentage),
     /// A used/total value pair for a specific category, such as memory usage.
-    Used(Category, u64, u64),
+    Used(String, Category, u64, u64),
 }
 
 /// Represents the different categories of resources that can be measured.
@@ -22,8 +22,8 @@ pub enum Category {
 impl fmt::Display for Metric {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Metric::Percent(category, Percentage(value)) => write!(f, "{}: {}%", category, value),
-            Metric::Used(category, used, total) => write!(f, "{}: {}/{}", category, used, total),
+            Metric::Percent(host, category, Percentage(value)) => write!(f, "{}-{}: {}%", host, category, value),
+            Metric::Used(host, category, used, total) => write!(f, "{}-{}: {}/{}", host, category, used, total),
         }
     }
 }
@@ -39,7 +39,7 @@ impl fmt::Display for Category {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Percentage(u8);
+pub struct Percentage(pub u8);
 
 #[derive(Clone, Debug, Error, PartialEq)]
 #[error("Percent value must be between 0 and 100")]

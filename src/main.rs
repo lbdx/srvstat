@@ -34,6 +34,7 @@
 use crate::domain::metrics::metric_service::MetricService;
 use crate::domain::metrics::models::Category;
 use crate::domain::ports::MetricProcessor;
+use crate::outbound::metric_writer::MqttMetricWriter;
 use config::Config;
 use outbound::{metric_reader::SystemMetricReader, metric_writer::DummyMetricWriter};
 
@@ -43,8 +44,14 @@ pub mod outbound;
 
 fn main() {
     let config = Config::from_env().expect("Error reading parameters.");
-    if config.server_port.is_some() {
+    if config.server_port.is_none() {
         println!("Config server_port={:?}", config.server_port);
+        let reader = SystemMetricReader;
+        let writer = MqttMetricWriter::new("tcp://192.168.1.70:1883");
+        let service = MetricService::new(reader, writer);
+        service.process_metrics(Category::Disk);
+        service.process_metrics(Category::Memory);
+        service.process_metrics(Category::Cpu);
     } else {
         let reader = SystemMetricReader;
         let writer = DummyMetricWriter;

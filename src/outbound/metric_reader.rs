@@ -5,10 +5,10 @@ use sysinfo::{Disks, System};
 pub struct DummyMetricReader;
 impl MetricReader for DummyMetricReader {
     fn get_percent(&self, category: &Category) -> Metric {
-        Metric::Percent(category.clone(), Percentage::new(25).unwrap())
+        Metric::Percent("tux".to_string(), category.clone(), Percentage::new(25).unwrap())
     }
     fn get_used(&self, category: &Category) -> Metric {
-        Metric::Used(category.clone(), 25, 100)
+        Metric::Used("tux".to_string(), category.clone(), 25, 100)
     }
 }
 
@@ -16,17 +16,18 @@ pub struct SystemMetricReader;
 
 impl MetricReader for SystemMetricReader {
     fn get_percent(&self, category: &Category) -> Metric {
+        let mut sys = System::new_all();
+        let host = System::host_name().unwrap();
         match category {
             Category::Cpu => {
-                let mut sys = System::new_all();
                 sys.refresh_cpu_usage();
                 let cpu_usage = sys.global_cpu_usage() as u8;
-                Metric::Percent(category.clone(), Percentage::new(cpu_usage).unwrap())
+                Metric::Percent(host, category.clone(), Percentage::new(cpu_usage).unwrap())
             }
             _ => {
                 let used = self.get_used(category);
                 match used {
-                    Metric::Used(_, used_metric, total_metric) => {
+                    Metric::Used(host, _, used_metric, total_metric) => {
                         // Calculate the usage percentage
                         let usage_percent =
                             1f64 / total_metric as f64 * used_metric as f64 * 100f64;
@@ -34,11 +35,10 @@ impl MetricReader for SystemMetricReader {
                         let usage_percent_u8 = usage_percent.round() as u8;
                         let result = Percentage::new(usage_percent_u8);
                         Metric::Percent(
+                            host.clone(),
                             category.clone(),
-                            result.expect(
-                                &format!("Erreur poucentage non valide : {}", usage_percent_u8)
-                                    .to_string(),
-                            ),
+                            result.unwrap_or_else(|_| { panic!("{}", format!("Erreur poucentage non valide : {}", usage_percent_u8)
+                                    .to_string()) }),
                         )
                     }
                     _ => unreachable!(),
@@ -48,11 +48,11 @@ impl MetricReader for SystemMetricReader {
     }
 
     fn get_used(&self, category: &Category) -> Metric {
+        // Initialize the system info struct
+        let mut sys = System::new_all();
+        let host = System::host_name().unwrap();
         match category {
             Category::Disk => {
-                // Initialize the system info struct
-                let mut sys = System::new_all();
-
                 // Refresh system data to ensure we get the latest info
                 sys.refresh_all();
 
@@ -65,18 +65,17 @@ impl MetricReader for SystemMetricReader {
                 // Calculate used space
                 let used_space = total_space - available_space;
 
-                Metric::Used(category.clone(), used_space, total_space)
+                Metric::Used(host, category.clone(), used_space, total_space)
             }
             Category::Memory => {
-                // Initialize the system info struct
-                let mut sys = System::new_all();
-
                 // Refresh system data to ensure we get the latest info
                 sys.refresh_memory();
-                Metric::Used(category.clone(), sys.used_memory(), sys.total_memory())
+                Metric::Used(host, category.clone(), sys.used_memory(), sys.total_memory())
             }
             Category::Cpu => {
-                todo!()
+                // error no used metric for cpu
+                eprintln!("Error: no used metric for cpu");
+                Metric::Used(host, category.clone(), 0, 0)
             }
         }
     }
