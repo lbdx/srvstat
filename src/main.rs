@@ -26,9 +26,9 @@
 //!     cargo build --release
 //!     ```
 //!
-//! 3. Set environment variables for configuration (such as server port):
+//! 3. Set environment variables for configuration (such as BROKER_URL):
 //!     ```bash
-//!     export SERVER_PORT=8080
+//!     export BROKER_URL=tcp://localhost:1883
 //!
 
 use std::process::exit;
