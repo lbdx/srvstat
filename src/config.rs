@@ -1,17 +1,15 @@
+use std::env::var;
+use anyhow::Context;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Config {
-    pub server_port: Option<&'static str>,
-    pub server_url: Option<&'static str>,
+    pub broker_url: String,
 }
 
 impl Config {
     pub fn from_env() -> anyhow::Result<Config> {
-        let server_port = option_env!("SERVER_PORT");
-        let server_url = option_env!("SERVER_URL");
-
-        Ok(Config {
-            server_port,
-            server_url,
-        })
+        let broker_url = var("BROKER_URL")
+            .context("Environment variable BROKER_URL is not set or is invalid")?;
+        Ok(Config { broker_url })
     }
 }

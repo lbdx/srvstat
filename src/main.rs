@@ -31,6 +31,7 @@
 //!     export SERVER_PORT=8080
 //!
 
+use std::process::exit;
 use crate::domain::metrics::metric_service::MetricService;
 use crate::domain::metrics::models::Category;
 use crate::domain::ports::MetricProcessor;
@@ -43,21 +44,27 @@ pub mod domain;
 pub mod outbound;
 
 fn main() {
-    let config = Config::from_env().expect("Error reading parameters.");
-    if config.server_port.is_none() {
-        println!("Config server_port={:?}", config.server_port);
-        let reader = SystemMetricReader;
-        let writer = MqttMetricWriter::new("tcp://192.168.1.70:1883");
-        let service = MetricService::new(reader, writer);
-        service.process_metrics(Category::Disk);
-        service.process_metrics(Category::Memory);
-        service.process_metrics(Category::Cpu);
-    } else {
-        let reader = SystemMetricReader;
-        let writer = DummyMetricWriter;
-        let service = MetricService::new(reader, writer); // Create an instance of DummyMetricService
-        service.process_metrics(Category::Disk);
-        service.process_metrics(Category::Memory);
-        service.process_metrics(Category::Cpu);
+    match Config::from_env() {
+        Ok(config) => {
+            println!("Config broker_url={:?}", config.broker_url);
+            let reader = SystemMetricReader;
+            let writer = MqttMetricWriter::new(config.broker_url);
+            let service = MetricService::new(reader, writer);
+            service.process_metrics(Category::Disk);
+            service.process_metrics(Category::Memory);
+            service.process_metrics(Category::Cpu);
+        }
+        Err(e) => {
+            eprintln!("Error loading configuration: {}", e);
+            eprintln!("Usage: Set the BROKER_URL environment variable.");
+            println!("Writing values to console :");
+            let reader = SystemMetricReader;
+            let writer = DummyMetricWriter;
+            let service = MetricService::new(reader, writer);
+            service.process_metrics(Category::Disk);
+            service.process_metrics(Category::Memory);
+            service.process_metrics(Category::Cpu);
+            exit(1);
+        }
     }
 }

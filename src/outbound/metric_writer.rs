@@ -20,7 +20,7 @@ pub struct MqttMetricWriter {
 }
 
 impl MqttMetricWriter {
-    pub fn new(broker: &str) -> Self {
+    pub fn new(broker: String) -> Self {
         // Create a client & define connect options
         let client = Client::new(broker).unwrap_or_else(|err| {
             println!("Error creating the client: {:?}", err);
