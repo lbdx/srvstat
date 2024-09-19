@@ -58,6 +58,9 @@ impl Percentage {
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn host() -> String {
+        "test".to_string()
+    }
 
     #[test]
     fn test_valid_percentage() {
@@ -79,15 +82,15 @@ mod tests {
     fn test_metric_percent_display() {
         let category = Category::Cpu;
         let percentage = Percentage::new(50).unwrap();
-        let metric = Metric::Percent(category, percentage);
-        assert_eq!(metric.to_string(), "CPU: 50%");
+        let metric = Metric::Percent(host(), category, percentage);
+        assert_eq!(metric.to_string(), "test-CPU: 50%");
     }
 
     #[test]
     fn test_metric_used_display() {
         let category = Category::Memory;
-        let metric = Metric::Used(category, 4096, 8192);
-        assert_eq!(metric.to_string(), "Memory: 4096/8192");
+        let metric = Metric::Used(host(), category, 4096, 8192);
+        assert_eq!(metric.to_string(), "test-Memory: 4096/8192");
     }
 
     #[test]
