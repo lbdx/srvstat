@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.89"
-thiserror = "1.0.61"
+thiserror = "1.0.64"
 sysinfo = "0.31.4"
 paho-mqtt = "0.12"
 rumqttc = "0.24.0"
