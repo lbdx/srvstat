@@ -31,13 +31,13 @@
 //!     export BROKER_URL=tcp://localhost:1883
 //!
 
-use std::process::exit;
 use crate::domain::metrics::metric_service::MetricService;
 use crate::domain::metrics::models::Category;
 use crate::domain::ports::MetricProcessor;
 use crate::outbound::metric_writer::MqttMetricWriter;
 use config::Config;
 use outbound::{metric_reader::SystemMetricReader, metric_writer::DummyMetricWriter};
+use std::process::exit;
 
 pub mod config;
 pub mod domain;

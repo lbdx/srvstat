@@ -68,7 +68,6 @@ impl MqttMetricWriter {
             println!("Error sending message: {:?}", e);
         }
     }
-
 }
 
 impl MetricWriter for MqttMetricWriter {
@@ -82,9 +81,7 @@ impl MetricWriter for MqttMetricWriter {
                 let Percentage(val) = percent;
                 val.to_string()
             }
-            Metric::Used(_, _, _, _) => {
-                "".to_string()
-            }
+            Metric::Used(_, _, _, _) => "".to_string(),
         };
         self.clone().publish_metric_value(config, val);
     }

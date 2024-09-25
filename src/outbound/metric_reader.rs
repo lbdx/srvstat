@@ -5,7 +5,11 @@ use sysinfo::{Disks, System};
 pub struct DummyMetricReader;
 impl MetricReader for DummyMetricReader {
     fn get_percent(&self, category: &Category) -> Metric {
-        Metric::Percent("tux".to_string(), category.clone(), Percentage::new(25).unwrap())
+        Metric::Percent(
+            "tux".to_string(),
+            category.clone(),
+            Percentage::new(25).unwrap(),
+        )
     }
     fn get_used(&self, category: &Category) -> Metric {
         Metric::Used("tux".to_string(), category.clone(), 25, 100)
@@ -37,8 +41,13 @@ impl MetricReader for SystemMetricReader {
                         Metric::Percent(
                             host.clone(),
                             category.clone(),
-                            result.unwrap_or_else(|_| { panic!("{}", format!("Erreur poucentage non valide : {}", usage_percent_u8)
-                                    .to_string()) }),
+                            result.unwrap_or_else(|_| {
+                                panic!(
+                                    "{}",
+                                    format!("Erreur poucentage non valide : {}", usage_percent_u8)
+                                        .to_string()
+                                )
+                            }),
                         )
                     }
                     _ => unreachable!(),
@@ -70,7 +79,12 @@ impl MetricReader for SystemMetricReader {
             Category::Memory => {
                 // Refresh system data to ensure we get the latest info
                 sys.refresh_memory();
-                Metric::Used(host, category.clone(), sys.used_memory(), sys.total_memory())
+                Metric::Used(
+                    host,
+                    category.clone(),
+                    sys.used_memory(),
+                    sys.total_memory(),
+                )
             }
             Category::Cpu => {
                 // error no used metric for cpu
