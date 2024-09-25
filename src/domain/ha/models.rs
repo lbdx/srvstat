@@ -56,7 +56,7 @@ fn get_discovery_config_percent(
             "mdi:cpu-64-bit".to_string(),
         ),
     };
-    let unique_id = format!("{}{}", host, sensor_name);
+    let unique_id = format!("{}{}", host, sensor_name).to_lowercase();
     let state_topic = format!("homeassistant/sensor/{}/state", &unique_id);
     let unit_of_measurement = "%".to_string();
     let value_template = "{{ value_json.value }}".to_string();
