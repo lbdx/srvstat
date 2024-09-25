@@ -26,8 +26,11 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \
             -w /workspace \
-            rust:bookworm \
-            cargo build --release
+            rust:bookworm bash -c "\
+              apt update && \
+              apt install -y libssl-dev build-essential cmake && \
+              cargo build --release
+            "
 
       - name: Upload compiled binary as artifact
         uses: actions/upload-artifact@v3
