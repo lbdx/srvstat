@@ -1,5 +1,5 @@
-use std::env::var;
 use anyhow::Context;
+use std::env::var;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Config {

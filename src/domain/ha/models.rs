@@ -9,6 +9,7 @@ pub struct HomeAssistantDiscoveryConfig {
     unit_of_measurement: String,
     value_template: String,
     state_class: String,
+    icon: String,
 }
 
 impl HomeAssistantDiscoveryConfig {
@@ -29,22 +30,47 @@ impl From<&Metric> for HomeAssistantDiscoveryConfig {
     fn from(metric: &Metric) -> Self {
         match metric {
             Metric::Percent(host, category, _) => get_discovery_config_percent(host, category),
-            Metric::Used(_, _, _, _) => todo!()
+            Metric::Used(_, _, _, _) => todo!(),
         }
     }
 }
 
-fn get_discovery_config_percent(host: &String, category: &Category) -> HomeAssistantDiscoveryConfig {
-    let (name,sensor_name) = match category {
-        Category::Disk => (format!("{}-{}", host, "diskUsage"), "diskUsePercent".to_string()),
-        Category::Memory => (format!("{}-{}", host, "memoryUsage"), "memoryUsePercent".to_string()),
-        Category::Cpu => (format!("{}-{}", host, "cpuUsage"), "cpuUsePercent".to_string())
+fn get_discovery_config_percent(
+    host: &String,
+    category: &Category,
+) -> HomeAssistantDiscoveryConfig {
+    let (name, sensor_name, friendly_name, icon) = match category {
+        Category::Disk => (
+            format!("{}-{}", host, "diskUsage"),
+            "diskUsePercent".to_string(),
+            "Disque".to_string(),
+            "mdi:harddisk".to_string(),
+        ),
+        Category::Memory => (
+            format!("{}-{}", host, "memoryUsage"),
+            "memoryUsePercent".to_string(),
+            "Mémoire".to_string(),
+            "mdi:memory".to_string(),
+        ),
+        Category::Cpu => (
+            format!("{}-{}", host, "cpuUsage"),
+            "cpuUsePercent".to_string(),
+            "Cpu".to_string(),
+            "mdi:cpu-64-bit".to_string(),
+        ),
     };
     let unique_id = format!("{}{}", host, sensor_name);
-    let state_topic =  format!("homeassistant/sensor/{}/state", &name);
+    let state_topic = format!("homeassistant/sensor/{}/state", &name);
     let unit_of_measurement = "%".to_string();
     let value_template = "{{ value_json.value }}".to_string();
     let state_class = "measurement".to_string();
-    HomeAssistantDiscoveryConfig {name, unique_id, state_topic, unit_of_measurement, value_template, state_class}
+    HomeAssistantDiscoveryConfig {
+        name: friendly_name,
+        unique_id,
+        state_topic,
+        unit_of_measurement,
+        value_template,
+        state_class,
+        icon,
+    }
 }
-

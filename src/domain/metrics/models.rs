@@ -22,8 +22,12 @@ pub enum Category {
 impl fmt::Display for Metric {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Metric::Percent(host, category, Percentage(value)) => write!(f, "{}-{}: {}%", host, category, value),
-            Metric::Used(host, category, used, total) => write!(f, "{}-{}: {}/{}", host, category, used, total),
+            Metric::Percent(host, category, Percentage(value)) => {
+                write!(f, "{}-{}: {}%", host, category, value)
+            }
+            Metric::Used(host, category, used, total) => {
+                write!(f, "{}-{}: {}/{}", host, category, used, total)
+            }
         }
     }
 }
