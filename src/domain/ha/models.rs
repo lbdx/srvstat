@@ -41,17 +41,17 @@ fn get_discovery_config_percent(
 ) -> HomeAssistantDiscoveryConfig {
     let (name, sensor_name, icon) = match category {
         Category::Disk => (
-            "Disque".to_string(),
+            format!("{}-{}", host, "disk").to_string(),
             "diskUsePercent".to_string(),
             "mdi:harddisk".to_string(),
         ),
         Category::Memory => (
-            "Mémoire".to_string(),
+            format!("{}-{}", host, "memory").to_string(),
             "memoryUsePercent".to_string(),
             "mdi:memory".to_string(),
         ),
         Category::Cpu => (
-            "Cpu".to_string(),
+            format!("{}-{}", host, "cpu").to_string(),
             "cpuUsePercent".to_string(),
             "mdi:cpu-64-bit".to_string(),
         ),
