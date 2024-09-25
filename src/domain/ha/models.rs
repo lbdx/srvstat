@@ -39,33 +39,30 @@ fn get_discovery_config_percent(
     host: &String,
     category: &Category,
 ) -> HomeAssistantDiscoveryConfig {
-    let (name, sensor_name, friendly_name, icon) = match category {
+    let (name, sensor_name, icon) = match category {
         Category::Disk => (
-            format!("{}-{}", host, "diskUsage"),
-            "diskUsePercent".to_string(),
             "Disque".to_string(),
+            "diskUsePercent".to_string(),
             "mdi:harddisk".to_string(),
         ),
         Category::Memory => (
-            format!("{}-{}", host, "memoryUsage"),
-            "memoryUsePercent".to_string(),
             "Mémoire".to_string(),
+            "memoryUsePercent".to_string(),
             "mdi:memory".to_string(),
         ),
         Category::Cpu => (
-            format!("{}-{}", host, "cpuUsage"),
-            "cpuUsePercent".to_string(),
             "Cpu".to_string(),
+            "cpuUsePercent".to_string(),
             "mdi:cpu-64-bit".to_string(),
         ),
     };
     let unique_id = format!("{}{}", host, sensor_name);
-    let state_topic = format!("homeassistant/sensor/{}/state", &name);
+    let state_topic = format!("homeassistant/sensor/{}/state", &unique_id);
     let unit_of_measurement = "%".to_string();
     let value_template = "{{ value_json.value }}".to_string();
     let state_class = "measurement".to_string();
     HomeAssistantDiscoveryConfig {
-        name: friendly_name,
+        name: name,
         unique_id,
         state_topic,
         unit_of_measurement,
