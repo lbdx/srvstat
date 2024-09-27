@@ -10,6 +10,7 @@ pub struct HomeAssistantDiscoveryConfig {
     value_template: String,
     state_class: String,
     icon: String,
+    expire_after: i16,
 }
 
 impl HomeAssistantDiscoveryConfig {
@@ -62,12 +63,13 @@ fn get_discovery_config_percent(
     let value_template = "{{ value_json.value }}".to_string();
     let state_class = "measurement".to_string();
     HomeAssistantDiscoveryConfig {
-        name: name,
+        name,
         unique_id,
         state_topic,
         unit_of_measurement,
         value_template,
         state_class,
         icon,
+        expire_after: 300
     }
 }
