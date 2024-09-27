@@ -381,7 +381,7 @@ dependencies = [
 
 [[package]]
 name = "srvstat"
-version = "0.0.3"
+version = "0.0.4"
 dependencies = [
  "anyhow",
  "paho-mqtt",
