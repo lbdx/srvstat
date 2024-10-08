@@ -6,8 +6,19 @@ use thiserror::Error;
 #[derive(Debug, PartialEq)]
 pub enum Metric {
     /// A percentage-based metric (0-100) for a specific category.
+    ///
+    /// # Parameters
+    /// * `name`: The name of the metric (e.g., "CPU Usage").
+    /// * `category`: The category of the metric (e.g., "Disk").
+    /// * `percentage`: The value as a percentage (0-100).
     Percent(String, Category, Percentage),
     /// A used/total value pair for a specific category, such as memory usage.
+    ///
+    /// # Parameters
+    /// * `name`: The name of the metric (e.g., "Memory Usage").
+    /// * `category`: The category of the metric (e.g., "Disk").
+    /// * `used`: The amount of the resource being used (e.g., 1000 MB).
+    /// * `total`: The total amount of the resource available (e.g., 4000 MB).
     Used(String, Category, u64, u64),
 }
 
