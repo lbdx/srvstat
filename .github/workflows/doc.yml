@@ -20,4 +20,7 @@ jobs:
           rm -rf ./docs
           echo "<meta http-equiv=\"refresh\" content=\"0; url=build_wheel\">" > target/doc/index.html
           cp -r target/doc ./docs
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
     
