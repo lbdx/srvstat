@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Category","Metric"],"struct":["InvalidPercentage","Percentage"]};

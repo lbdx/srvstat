@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"srvstat":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.81.0/core/convert/trait.From.html\" title=\"trait core::convert::From\">From</a>&lt;&amp;<a class=\"enum\" href=\"srvstat/domain/metrics/models/enum.Metric.html\" title=\"enum srvstat::domain::metrics::models::Metric\">Metric</a>&gt; for <a class=\"struct\" href=\"srvstat/domain/ha/models/struct.HomeAssistantDiscoveryConfig.html\" title=\"struct srvstat::domain::ha::models::HomeAssistantDiscoveryConfig\">HomeAssistantDiscoveryConfig</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

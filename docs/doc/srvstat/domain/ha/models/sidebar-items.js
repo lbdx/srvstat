@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_discovery_config_percent"],"struct":["HomeAssistantDiscoveryConfig"]};
