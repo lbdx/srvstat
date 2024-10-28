@@ -4,7 +4,7 @@ version = "0.0.5"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.90"
+anyhow = "1.0.91"
 thiserror = "1.0.64"
 sysinfo = "0.32.0"
 paho-mqtt = "0.12"
