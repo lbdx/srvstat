@@ -38,12 +38,21 @@ use crate::outbound::metric_writer::MqttMetricWriter;
 use config::Config;
 use outbound::{metric_reader::SystemMetricReader, metric_writer::DummyMetricWriter};
 use std::process::exit;
+use std::env;
 
 pub mod config;
 pub mod domain;
 pub mod outbound;
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() > 1 && args[1] == "--version" {
+        let version = env!("CARGO_PKG_VERSION");
+        println!("Application version: {}", version);
+        return;
+    }
+
     match Config::from_env() {
         Ok(config) => {
             println!("Config broker_url={:?}", config.broker_url);
@@ -66,5 +75,36 @@ fn main() {
             service.process_metrics(Category::Cpu);
             exit(1);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::process::Command;
+    use std::env;
+    
+    #[test]
+    fn test_version_flag() {
+        let output = Command::new("cargo")
+            .args(&["run", "--", "--version"])
+            .output()
+            .expect("failed to execute process");
+
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let version = env!("CARGO_PKG_VERSION");
+
+        assert!(stdout.contains(&format!("Application version: {}", version)));
+    }
+
+    #[test]
+    fn test_no_version_flag() {
+        let output = Command::new("cargo")
+            .args(&["run"])
+            .output()
+            .expect("failed to execute process");
+
+        let stdout = String::from_utf8_lossy(&output.stdout);
+
+        assert!(!stdout.contains("Application version:"));
     }
 }
