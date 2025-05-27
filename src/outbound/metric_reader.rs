@@ -91,6 +91,18 @@ impl MetricReader for SystemMetricReader {
                 eprintln!("Error: no used metric for cpu");
                 Metric::Used(host, category.clone(), 0, 0)
             }
+            Category::Swap => {
+                // sys and host are already defined in the outer scope of this match
+                sys.refresh_memory(); // refresh memory info
+                let used_swap = sys.used_swap(); // get used swap
+                let total_swap = sys.total_swap(); // get total swap
+                Metric::Used(
+                    host,
+                    category.clone(),
+                    used_swap,
+                    total_swap,
+                )
+            }
         }
     }
 }

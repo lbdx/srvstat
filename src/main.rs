@@ -62,6 +62,7 @@ fn main() {
             service.process_metrics(Category::Disk);
             service.process_metrics(Category::Memory);
             service.process_metrics(Category::Cpu);
+            service.process_metrics(Category::Swap);
         }
         Err(e) => {
             eprintln!("Error loading configuration: {}", e);
@@ -73,6 +74,7 @@ fn main() {
             service.process_metrics(Category::Disk);
             service.process_metrics(Category::Memory);
             service.process_metrics(Category::Cpu);
+            service.process_metrics(Category::Swap);
             exit(1);
         }
     }
