@@ -27,11 +27,57 @@ impl HomeAssistantDiscoveryConfig {
     }
 }
 
+fn get_discovery_config_used(
+    host: &String,
+    category: &Category,
+    _total_bytes: u64, // total_bytes is not used for now, but passed for future use
+) -> HomeAssistantDiscoveryConfig {
+    let (name, sensor_name, icon, unit_of_measurement) = match category {
+        Category::Disk => (
+            format!("{}-{}", host, "disk_used").to_string(),
+            "diskUsed".to_string(),
+            "mdi:harddisk".to_string(),
+            "GB".to_string(),
+        ),
+        Category::Memory => (
+            format!("{}-{}", host, "memory_used").to_string(),
+            "memoryUsed".to_string(),
+            "mdi:memory".to_string(),
+            "MB".to_string(),
+        ),
+        Category::Swap => (
+            format!("{}-{}", host, "swap_used").to_string(),
+            "swapUsed".to_string(),
+            "mdi:swap-horizontal".to_string(),
+            "MB".to_string(),
+        ),
+        Category::Cpu => {
+            unreachable!("get_discovery_config_used should not be called for CPU")
+        }
+    };
+    let unique_id = format!("{}{}", host, sensor_name).to_lowercase();
+    let state_topic = format!("homeassistant/sensor/{}/state", &unique_id);
+    let value_template = "{{ value_json.value }}".to_string();
+    let state_class = "measurement".to_string();
+    HomeAssistantDiscoveryConfig {
+        name,
+        unique_id,
+        state_topic,
+        unit_of_measurement,
+        value_template,
+        state_class,
+        icon,
+        expire_after: 300,
+    }
+}
+
 impl From<&Metric> for HomeAssistantDiscoveryConfig {
     fn from(metric: &Metric) -> Self {
         match metric {
             Metric::Percent(host, category, _) => get_discovery_config_percent(host, category),
-            Metric::Used(_, _, _, _) => todo!(),
+            Metric::Used(host, category, _used, total) => {
+                get_discovery_config_used(host, category, *total)
+            }
         }
     }
 }
@@ -55,6 +101,11 @@ fn get_discovery_config_percent(
             format!("{}-{}", host, "cpu").to_string(),
             "cpuUsePercent".to_string(),
             "mdi:cpu-64-bit".to_string(),
+        ),
+        Category::Swap => (
+            format!("{}-{}", host, "swap").to_string(),
+            "swapUsePercent".to_string(),
+            "mdi:swap-horizontal".to_string(), // Standard MDI icon for swap
         ),
     };
     let unique_id = format!("{}{}", host, sensor_name).to_lowercase();
@@ -179,5 +230,69 @@ mod tests {
         );
         assert_eq!(config.unit_of_measurement, "%");
         assert_eq!(config.icon, "mdi:harddisk");
+    }
+
+    #[test]
+    fn test_metric_to_config_conversion_swap() {
+        let host = "test-host".to_string();
+        let metric = Metric::Percent(host.clone(), Category::Swap, Percentage::new(75).unwrap());
+        let config: HomeAssistantDiscoveryConfig = (&metric).into();
+
+        assert_eq!(config.name, "test-host-swap");
+        assert_eq!(config.unique_id, "test-hostswapusepercent");
+        assert_eq!(
+            config.state_topic,
+            "homeassistant/sensor/test-hostswapusepercent/state"
+        );
+        assert_eq!(config.unit_of_measurement, "%");
+        assert_eq!(config.icon, "mdi:swap-horizontal");
+    }
+
+    #[test]
+    fn test_metric_used_to_config_conversion_disk() {
+        let host = "test-host".to_string();
+        let metric = Metric::Used(host.clone(), Category::Disk, 500_000_000_000, 1_000_000_000_000);
+        let config: HomeAssistantDiscoveryConfig = (&metric).into();
+
+        assert_eq!(config.name, "test-host-disk_used");
+        assert_eq!(config.unique_id, "test-hostdiskused");
+        assert_eq!(
+            config.state_topic,
+            "homeassistant/sensor/test-hostdiskused/state"
+        );
+        assert_eq!(config.unit_of_measurement, "GB");
+        assert_eq!(config.icon, "mdi:harddisk");
+    }
+
+    #[test]
+    fn test_metric_used_to_config_conversion_memory() {
+        let host = "test-host".to_string();
+        let metric = Metric::Used(host.clone(), Category::Memory, 4096, 8192);
+        let config: HomeAssistantDiscoveryConfig = (&metric).into();
+
+        assert_eq!(config.name, "test-host-memory_used");
+        assert_eq!(config.unique_id, "test-hostmemoryused");
+        assert_eq!(
+            config.state_topic,
+            "homeassistant/sensor/test-hostmemoryused/state"
+        );
+        assert_eq!(config.unit_of_measurement, "MB");
+        assert_eq!(config.icon, "mdi:memory");
+    }
+
+    #[test]
+    fn test_metric_used_to_config_conversion_swap() {
+        let host = "test-host".to_string();
+        let metric = Metric::Used(host.clone(), Category::Swap, 1024, 2048);
+        let config: HomeAssistantDiscoveryConfig = (&metric).into();
+
+        assert_eq!(config.name, "test-host-swap_used");
+        assert_eq!(config.unique_id, "test-hostswapused");
+        assert_eq!(
+            config.state_topic,
+            "homeassistant/sensor/test-hostswapused/state"
+        );
+        assert_eq!(config.unit_of_measurement, "MB");
+        assert_eq!(config.icon, "mdi:swap-horizontal");
     }
 }
