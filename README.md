@@ -8,7 +8,15 @@ A lightweight Rust application that reads system metrics (such as Disk, CPU, and
 
 - Reads metrics from the system.
 - Publishes metrics to an MQTT queue.
-- Supports disk, CPU, and memory metrics.
+- Supports disk, CPU, memory, and temperature metrics.
+
+#### Temperature Monitoring
+
+The application can monitor system temperatures provided by available hardware sensors. Each detected temperature component (e.g., CPU package, specific cores, GPU, motherboard sensors, etc.) is published as an individual sensor to MQTT. This allows for granular monitoring in platforms like Home Assistant, where each temperature reading will appear as a distinct entity.
+
+Temperatures are reported in Celsius (°C).
+
+**Important Limitation:** Access to hardware temperature sensors might be restricted on some virtualized environments (like Docker containers or Windows Subsystem for Linux - WSL), or if the necessary kernel modules are not loaded on Linux. In such cases, temperature metrics may not be available, may be limited, or may report unexpected values.
 
 ### Project Structure
 

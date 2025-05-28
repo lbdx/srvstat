@@ -21,17 +21,17 @@ pub enum Metric {
     /// * `used`: The amount of the resource being used (e.g., 1000 MB).
     /// * `total`: The total amount of the resource available (e.g., 4000 MB).
     Used(String, Category, u64, u64),
-    /// Temperature readings from various components.
-    Temperature(String, Vec<ComponentTemperature>),
+    /// A generic metric value for a specific component.
+    Value {
+        host: String,
+        category: Category,
+        component_label: String,
+        value: f32,
+        unit: String,
+    },
 }
 
-/// Represents the temperature of a component.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ComponentTemperature {
-    pub label: String,
-    pub temperature: f32,
-    pub unit: String,
-}
+// ComponentTemperature struct is removed.
 
 /// Represents the different categories of resources that can be measured.
 #[derive(Debug, PartialEq, Clone)]
@@ -52,14 +52,21 @@ impl fmt::Display for Metric {
             Metric::Used(host, category, used, total) => {
                 write!(f, "{}-{}: {}/{}", host, category, used, total)
             }
-            Metric::Temperature(host, components) => {
-                let temps_formatted: String = components
-                    .iter()
-                    .map(|ct| format!("{}: {}{}", ct.label, ct.temperature, ct.unit))
-                    .collect::<Vec<String>>()
-                    .join(", ");
-                write!(f, "Temperatures for host '{}': {}", host, temps_formatted)
-            }
+            Metric::Value {
+                host,
+                category,
+                component_label,
+                value,
+                unit,
+            } => write!(
+                f,
+                "{host} - {category} - {label}: {value}{unit}",
+                host = host,
+                category = category,
+                label = component_label,
+                value = value,
+                unit = unit
+            ),
         }
     }
 }
@@ -95,7 +102,8 @@ impl Percentage {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    // Ensure ComponentTemperature is not imported if it was before
+    use super::{Category, Metric, Percentage}; // Adjusted imports
     fn host() -> String {
         "test".to_string()
     }

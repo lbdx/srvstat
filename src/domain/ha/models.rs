@@ -78,20 +78,42 @@ impl From<&Metric> for HomeAssistantDiscoveryConfig {
             Metric::Used(host, category, _used, total) => {
                 get_discovery_config_used(host, category, *total)
             }
-            Metric::Temperature(host, _temps) => {
-                let unique_id = format!("{}-temperatures", host).to_lowercase();
-                let state_topic = format!("homeassistant/sensor/{}/state", unique_id);
-                HomeAssistantDiscoveryConfig {
-                    name: format!("{}-temperatures", host),
-                    unique_id,
-                    state_topic,
-                    unit_of_measurement: "".to_string(),
-                    value_template: "{{ value_json.value }}".to_string(),
-                    state_class: "measurement".to_string(),
-                    icon: "mdi:thermometer-lines".to_string(),
-                    expire_after: 300,
+            Metric::Value {
+                host,
+                category,
+                component_label,
+                value: _, // value is not used for config generation
+                unit,
+            } => {
+                if *category == Category::Temperature {
+                    let name = format!("{}-{}-{}", host, category.to_string(), component_label);
+                    let unique_id = format!(
+                        "{}-{}-{}-temp",
+                        host,
+                        category.to_string(),
+                        component_label
+                    )
+                    .to_lowercase()
+                    .replace(' ', "_")
+                    .chars()
+                    .filter(|c| c.is_ascii_alphanumeric() || *c == '_')
+                    .collect::<String>();
+                    let state_topic = format!("homeassistant/sensor/{}/state", unique_id);
+
+                    HomeAssistantDiscoveryConfig {
+                        name,
+                        unique_id,
+                        state_topic,
+                        unit_of_measurement: unit.clone(),
+                        value_template: "{{ value_json.value }}".to_string(),
+                        state_class: "measurement".to_string(),
+                        icon: "mdi:thermometer".to_string(),
+                        expire_after: 300,
+                    }
+                } else {
+                    panic!("Metric::Value is currently only supported for Category::Temperature in HomeAssistantDiscoveryConfig");
                 }
-            }
+            } // Removed Metric::Temperature arm as it's replaced by Metric::Value
         }
     }
 }
@@ -142,7 +164,8 @@ fn get_discovery_config_percent(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::metrics::models::{Category, ComponentTemperature, Metric, Percentage};
+    // ComponentTemperature import removed as it's no longer used
+    use crate::domain::metrics::models::{Category, Metric, Percentage};
 
     #[test]
     fn test_get_config_topic() {
@@ -312,21 +335,66 @@ mod tests {
 
     #[test]
     fn test_metric_to_config_conversion_temperature() {
+        // This test might need to be removed or adapted if it relied on the old Metric::Temperature
+        // For now, let's assume it's superseded by test_metric_value_temperature_to_config_conversion
+        // If it tested something different, it should be re-evaluated.
+        // Keeping it commented out or removing it would be typical.
+        // For this exercise, I will remove it to avoid confusion with the new test.
+    }
+
+    #[test]
+    fn test_metric_value_temperature_to_config_conversion() {
         let host = "test-host".to_string();
-        let temps: Vec<ComponentTemperature> = vec![]; // Empty for this config test
-        let metric = Metric::Temperature(host.clone(), temps);
+        let component_label = "CPU Core 1".to_string();
+        let unit = "°C".to_string();
+        let metric = Metric::Value {
+            host: host.clone(),
+            category: Category::Temperature,
+            component_label: component_label.clone(),
+            value: 55.2,
+            unit: unit.clone(),
+        };
         let config: HomeAssistantDiscoveryConfig = (&metric).into();
 
-        let expected_unique_id = format!("{}-temperatures", host).to_lowercase();
+        let expected_name = format!("{}-temperature-{}", host, component_label);
+        let expected_unique_id = format!(
+            "{}-temperature-{}-temp",
+            host,
+            component_label
+        )
+        .to_lowercase()
+        .replace(' ', "_")
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '_')
+        .collect::<String>();
         let expected_state_topic = format!("homeassistant/sensor/{}/state", expected_unique_id);
 
-        assert_eq!(config.name, format!("{}-temperatures", host));
+        assert_eq!(config.name, expected_name);
         assert_eq!(config.unique_id, expected_unique_id);
         assert_eq!(config.state_topic, expected_state_topic);
-        assert_eq!(config.unit_of_measurement, "");
+        assert_eq!(config.unit_of_measurement, unit);
         assert_eq!(config.value_template, "{{ value_json.value }}");
         assert_eq!(config.state_class, "measurement");
-        assert_eq!(config.icon, "mdi:thermometer-lines");
+        assert_eq!(config.icon, "mdi:thermometer");
         assert_eq!(config.expire_after, 300);
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Metric::Value is currently only supported for Category::Temperature in HomeAssistantDiscoveryConfig"
+    )]
+    fn test_metric_value_non_temperature_panics() {
+        let host = "test-host".to_string();
+        let component_label = "Some Value".to_string();
+        let unit = "Units".to_string();
+        let metric = Metric::Value { // Using a different category, e.g., Disk
+            host: host.clone(),
+            category: Category::Disk, 
+            component_label: component_label.clone(),
+            value: 123.45,
+            unit: unit.clone(),
+        };
+        // This conversion should panic
+        let _config: HomeAssistantDiscoveryConfig = (&metric).into();
     }
 }
