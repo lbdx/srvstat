@@ -1,5 +1,6 @@
 use std::fmt;
 
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 /// Represents different metrics that can be tracked.
@@ -20,6 +21,16 @@ pub enum Metric {
     /// * `used`: The amount of the resource being used (e.g., 1000 MB).
     /// * `total`: The total amount of the resource available (e.g., 4000 MB).
     Used(String, Category, u64, u64),
+    /// Temperature readings from various components.
+    Temperature(String, Vec<ComponentTemperature>),
+}
+
+/// Represents the temperature of a component.
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ComponentTemperature {
+    pub label: String,
+    pub temperature: f32,
+    pub unit: String,
 }
 
 /// Represents the different categories of resources that can be measured.
@@ -29,6 +40,7 @@ pub enum Category {
     Memory,
     Cpu,
     Swap,
+    Temperature,
 }
 
 impl fmt::Display for Metric {
@@ -39,6 +51,14 @@ impl fmt::Display for Metric {
             }
             Metric::Used(host, category, used, total) => {
                 write!(f, "{}-{}: {}/{}", host, category, used, total)
+            }
+            Metric::Temperature(host, components) => {
+                let temps_formatted: String = components
+                    .iter()
+                    .map(|ct| format!("{}: {}{}", ct.label, ct.temperature, ct.unit))
+                    .collect::<Vec<String>>()
+                    .join(", ");
+                write!(f, "Temperatures for host '{}': {}", host, temps_formatted)
             }
         }
     }
@@ -51,6 +71,7 @@ impl fmt::Display for Category {
             Category::Memory => write!(f, "Memory"),
             Category::Cpu => write!(f, "CPU"),
             Category::Swap => write!(f, "Swap"),
+            Category::Temperature => write!(f, "temperature"),
         }
     }
 }
@@ -116,6 +137,7 @@ mod tests {
         assert_eq!(Category::Memory.to_string(), "Memory");
         assert_eq!(Category::Disk.to_string(), "Disk");
         assert_eq!(Category::Swap.to_string(), "Swap");
+        assert_eq!(Category::Temperature.to_string(), "temperature");
     }
 
     #[test]

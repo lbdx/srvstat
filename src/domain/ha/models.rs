@@ -78,6 +78,20 @@ impl From<&Metric> for HomeAssistantDiscoveryConfig {
             Metric::Used(host, category, _used, total) => {
                 get_discovery_config_used(host, category, *total)
             }
+            Metric::Temperature(host, _temps) => {
+                let unique_id = format!("{}-temperatures", host).to_lowercase();
+                let state_topic = format!("homeassistant/sensor/{}/state", unique_id);
+                HomeAssistantDiscoveryConfig {
+                    name: format!("{}-temperatures", host),
+                    unique_id,
+                    state_topic,
+                    unit_of_measurement: "".to_string(),
+                    value_template: "{{ value_json.value }}".to_string(),
+                    state_class: "measurement".to_string(),
+                    icon: "mdi:thermometer-lines".to_string(),
+                    expire_after: 300,
+                }
+            }
         }
     }
 }
@@ -128,7 +142,7 @@ fn get_discovery_config_percent(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::domain::metrics::models::{Category, Metric, Percentage};
+    use crate::domain::metrics::models::{Category, ComponentTemperature, Metric, Percentage};
 
     #[test]
     fn test_get_config_topic() {
@@ -294,5 +308,25 @@ mod tests {
         );
         assert_eq!(config.unit_of_measurement, "MB");
         assert_eq!(config.icon, "mdi:swap-horizontal");
+    }
+
+    #[test]
+    fn test_metric_to_config_conversion_temperature() {
+        let host = "test-host".to_string();
+        let temps: Vec<ComponentTemperature> = vec![]; // Empty for this config test
+        let metric = Metric::Temperature(host.clone(), temps);
+        let config: HomeAssistantDiscoveryConfig = (&metric).into();
+
+        let expected_unique_id = format!("{}-temperatures", host).to_lowercase();
+        let expected_state_topic = format!("homeassistant/sensor/{}/state", expected_unique_id);
+
+        assert_eq!(config.name, format!("{}-temperatures", host));
+        assert_eq!(config.unique_id, expected_unique_id);
+        assert_eq!(config.state_topic, expected_state_topic);
+        assert_eq!(config.unit_of_measurement, "");
+        assert_eq!(config.value_template, "{{ value_json.value }}");
+        assert_eq!(config.state_class, "measurement");
+        assert_eq!(config.icon, "mdi:thermometer-lines");
+        assert_eq!(config.expire_after, 300);
     }
 }

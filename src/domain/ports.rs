@@ -7,6 +7,7 @@ pub trait MetricProcessor {
 pub trait MetricReader {
     fn get_percent(&self, category: &Category) -> Metric;
     fn get_used(&self, category: &Category) -> Metric;
+    fn get_host(&self) -> String;
 }
 
 pub trait MetricWriter {

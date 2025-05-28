@@ -105,4 +105,8 @@ impl MetricReader for SystemMetricReader {
             }
         }
     }
+
+    fn get_host(&self) -> String {
+        System::host_name().unwrap_or_else(|| "unknown_host".to_string())
+    }
 }
