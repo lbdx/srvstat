@@ -81,7 +81,9 @@ impl MetricWriter for MqttMetricWriter {
                 let Percentage(val) = percent;
                 val.to_string()
             }
-            Metric::Used(_, _, _, _) => "".to_string(),
+            Metric::Used(_, _, _, _) => "".to_string(), // Placeholder, actual value might be handled differently or this arm refined
+            // Metric::Temperature arm is removed as Metric::Value will handle temperature
+            Metric::Value { value, .. } => value.to_string(),
         };
         self.clone().publish_metric_value(config, val);
     }

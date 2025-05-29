@@ -1,5 +1,6 @@
 use std::fmt;
 
+// use serde::{Deserialize, Serialize}; // Removed unused imports
 use thiserror::Error;
 
 /// Represents different metrics that can be tracked.
@@ -20,7 +21,17 @@ pub enum Metric {
     /// * `used`: The amount of the resource being used (e.g., 1000 MB).
     /// * `total`: The total amount of the resource available (e.g., 4000 MB).
     Used(String, Category, u64, u64),
+    /// A generic metric value for a specific component.
+    Value {
+        host: String,
+        category: Category,
+        component_label: String,
+        value: f32,
+        unit: String,
+    },
 }
+
+// ComponentTemperature struct is removed.
 
 /// Represents the different categories of resources that can be measured.
 #[derive(Debug, PartialEq, Clone)]
@@ -29,6 +40,7 @@ pub enum Category {
     Memory,
     Cpu,
     Swap,
+    Temperature,
 }
 
 impl fmt::Display for Metric {
@@ -40,6 +52,21 @@ impl fmt::Display for Metric {
             Metric::Used(host, category, used, total) => {
                 write!(f, "{}-{}: {}/{}", host, category, used, total)
             }
+            Metric::Value {
+                host,
+                category,
+                component_label,
+                value,
+                unit,
+            } => write!(
+                f,
+                "{host} - {category} - {label}: {value}{unit}",
+                host = host,
+                category = category,
+                label = component_label,
+                value = value,
+                unit = unit
+            ),
         }
     }
 }
@@ -51,6 +78,7 @@ impl fmt::Display for Category {
             Category::Memory => write!(f, "Memory"),
             Category::Cpu => write!(f, "CPU"),
             Category::Swap => write!(f, "Swap"),
+            Category::Temperature => write!(f, "temperature"),
         }
     }
 }
@@ -74,7 +102,8 @@ impl Percentage {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    // Ensure ComponentTemperature is not imported if it was before
+    use super::{Category, Metric, Percentage}; // Adjusted imports
     fn host() -> String {
         "test".to_string()
     }
@@ -116,6 +145,7 @@ mod tests {
         assert_eq!(Category::Memory.to_string(), "Memory");
         assert_eq!(Category::Disk.to_string(), "Disk");
         assert_eq!(Category::Swap.to_string(), "Swap");
+        assert_eq!(Category::Temperature.to_string(), "temperature");
     }
 
     #[test]
