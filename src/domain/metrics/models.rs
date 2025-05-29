@@ -1,6 +1,6 @@
 use std::fmt;
 
-use serde::{Deserialize, Serialize};
+// use serde::{Deserialize, Serialize}; // Removed unused imports
 use thiserror::Error;
 
 /// Represents different metrics that can be tracked.

@@ -54,6 +54,9 @@ fn get_discovery_config_used(
         Category::Cpu => {
             unreachable!("get_discovery_config_used should not be called for CPU")
         }
+        Category::Temperature => {
+            unreachable!("get_discovery_config_used should not be called for Temperature")
+        }
     };
     let unique_id = format!("{}{}", host, sensor_name).to_lowercase();
     let state_topic = format!("homeassistant/sensor/{}/state", &unique_id);
@@ -143,6 +146,9 @@ fn get_discovery_config_percent(
             "swapUsePercent".to_string(),
             "mdi:swap-horizontal".to_string(), // Standard MDI icon for swap
         ),
+        Category::Temperature => {
+            unreachable!("get_discovery_config_percent should not be called for Temperature")
+        }
     };
     let unique_id = format!("{}{}", host, sensor_name).to_lowercase();
     let state_topic = format!("homeassistant/sensor/{}/state", &unique_id);

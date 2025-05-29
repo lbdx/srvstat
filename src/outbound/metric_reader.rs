@@ -14,6 +14,9 @@ impl MetricReader for DummyMetricReader {
     fn get_used(&self, category: &Category) -> Metric {
         Metric::Used("tux".to_string(), category.clone(), 25, 100)
     }
+    fn get_host(&self) -> String {
+        "dummy-host".to_string()
+    }
 }
 
 pub struct SystemMetricReader;
@@ -102,6 +105,11 @@ impl MetricReader for SystemMetricReader {
                     used_swap,
                     total_swap,
                 )
+            }
+            Category::Temperature => {
+                // Temperature does not have a "used/total" concept in this context
+                eprintln!("Error: no used/total metric for Temperature category");
+                Metric::Used(host, category.clone(), 0, 0)
             }
         }
     }

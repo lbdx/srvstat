@@ -42,18 +42,21 @@ where
             let mut temps_found = false;
 
             for component in components.list() {
-                temps_found = true;
-                let temp_metric = Metric::Value {
-                    host: host.clone(),
-                    category: Category::Temperature,
-                    component_label: component.label().to_string(),
-                    value: component.temperature(),
-                    unit: "°C".to_string(),
-                };
-                self.writer.write(temp_metric);
+                if let Some(temp_value) = component.temperature() {
+                    temps_found = true; // A temperature value was found and will be processed
+                    let temp_metric = Metric::Value {
+                        host: host.clone(),
+                        category: Category::Temperature,
+                        component_label: component.label().to_string(),
+                        value: temp_value,
+                        unit: "°C".to_string(),
+                    };
+                    self.writer.write(temp_metric);
+                }
+                // If component.temperature() is None, we simply skip this component.
             }
 
-            if !temps_found {
+            if !temps_found { // This now correctly means no valid temperatures were processed
                 eprintln!("Warning: No temperature components found or sysinfo couldn't read them. Temperature metrics will not be published.");
             }
         }
