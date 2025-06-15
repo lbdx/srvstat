@@ -29,6 +29,7 @@ pub enum Category {
     Memory,
     Cpu,
     Swap,
+    FanSpeed,
 }
 
 impl fmt::Display for Metric {
@@ -51,6 +52,7 @@ impl fmt::Display for Category {
             Category::Memory => write!(f, "Memory"),
             Category::Cpu => write!(f, "CPU"),
             Category::Swap => write!(f, "Swap"),
+            Category::FanSpeed => write!(f, "FanSpeed"),
         }
     }
 }
@@ -116,6 +118,7 @@ mod tests {
         assert_eq!(Category::Memory.to_string(), "Memory");
         assert_eq!(Category::Disk.to_string(), "Disk");
         assert_eq!(Category::Swap.to_string(), "Swap");
+        assert_eq!(Category::FanSpeed.to_string(), "FanSpeed");
     }
 
     #[test]
