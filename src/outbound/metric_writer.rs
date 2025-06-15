@@ -10,7 +10,7 @@ pub struct DummyMetricWriter;
 
 impl MetricWriter for DummyMetricWriter {
     fn write(&self, metric: Metric) {
-        println!("{:?}", metric);
+        println!("{}", metric);
     }
 }
 

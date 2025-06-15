@@ -54,6 +54,11 @@ fn get_discovery_config_used(
         Category::Cpu => {
             unreachable!("get_discovery_config_used should not be called for CPU")
         }
+        Category::FanSpeed => {
+            // For now, FanSpeed is not expected to be a "used" metric in this context.
+            // If it were, we'd need to define appropriate name, sensor_name, icon, unit.
+            unreachable!("get_discovery_config_used should not be called for FanSpeed at this time")
+        }
     };
     let unique_id = format!("{}{}", host, sensor_name).to_lowercase();
     let state_topic = format!("homeassistant/sensor/{}/state", &unique_id);
@@ -106,6 +111,11 @@ fn get_discovery_config_percent(
             format!("{}-{}", host, "swap").to_string(),
             "swapUsePercent".to_string(),
             "mdi:swap-horizontal".to_string(), // Standard MDI icon for swap
+        ),
+        Category::FanSpeed => (
+            format!("{}-{}", host, "fanspeed_percent").to_string(),
+            "fanSpeedPercent".to_string(),
+            "mdi:fan".to_string(),
         ),
     };
     let unique_id = format!("{}{}", host, sensor_name).to_lowercase();
